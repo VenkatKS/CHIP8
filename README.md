@@ -7,5 +7,5 @@ Simiarly, it uses Unix-specific terminal commands to read in key strokes from st
 
 To run, please first compile the files *(by running `gcc *.c` from project directory)*. After doing so, the compiled emulator binary can be launched by specifying a CHIP-8 binary/ROM file as the second parameter.
 
-Tested on MacOS.
+Developed, compiled, and tested on MacOS.
 
