@@ -5,6 +5,16 @@
 //  Created by Venkat Srinivasan on 2/22/17.
 //  Copyright © 2017 Venkat Srinivasan. All rights reserved.
 //
+/* OpenGL Libraries */
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#include <OpenGL/glu.h>
+#include <OpenGL/gl.h>
+#else
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h>
+#endif
 
 #include "services.h"
 #include "memory.h"
@@ -12,9 +22,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <GLUT/glut.h>
-#include <OpenGL/glu.h>
-#include <OpenGL/gl.h>
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
