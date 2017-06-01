@@ -16,9 +16,10 @@
 #define NUM_KEYS    16
 
 void keyboard_init();
-/* Returns true if a new key press is recorded, false if nothing */
 bool check_keyPressed(uint8_t keyId);
-/* Returns ID of the lowest valued key currently pressed */
 int16_t get_keyPressed();
+void gl_keyDownHandler(unsigned char Key, int one, int two);
+void gl_keyUpHandler(unsigned char keyid, int one, int two);
+
 
 #endif /* keyboard_h */

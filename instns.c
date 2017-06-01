@@ -6,6 +6,7 @@
 //  Copyright © 2017 Venkat Srinivasan. All rights reserved.
 //
 
+#include "displaysettings.h"
 #include "instns.h"
 #include "services.h"
 #include "regs.h"
@@ -13,6 +14,8 @@
 #include "display.h"
 #include "keyboard.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 INSTN(screenclr)
     screenclear();
@@ -250,6 +253,11 @@ INSTN(sprite)
     uint16_t sprite_data;
     uint32_t row_iterator, pixel_iterator = 0;
     uint8_t pixelVal;
+    uint8_t *local_screen = (uint8_t *) malloc(TERM_X * TERM_Y);
+    get_screen_mutex();
+    memcpy(local_screen, get_screen(), TERM_X * TERM_Y);
+    release_screen_mutex();
+
     gp_reg_access(reg_no, &x_cor, REG_LD);
     gp_reg_access(reg2_no, &y_cor, REG_LD);
     I_reg_access(&I_addr, REG_LD);
@@ -260,21 +268,24 @@ INSTN(sprite)
         for (pixel_iterator = 0; pixel_iterator < 8; pixel_iterator++) {
             if ((pixelVal & (0x80 >> pixel_iterator)) != 0) {
                 /* Need to operate on this pixel */
-                get_screen_mutex();
-                sprite_data = get_screen()[(x_cor + pixel_iterator + ((y_cor + row_iterator) * TERM_X))];
+                sprite_data = local_screen[(x_cor + pixel_iterator + ((y_cor + row_iterator) * TERM_X))];
                 if (sprite_data == 1) {
                     /* Pixel already set */
                     overflow = 1;
                 }
                 sprite_data = sprite_data ^ 1;
-                get_screen()[(x_cor + pixel_iterator + ((y_cor + row_iterator) * TERM_X))] = sprite_data;
-                release_screen_mutex();
+                local_screen[(x_cor + pixel_iterator + ((y_cor + row_iterator) * TERM_X))] = sprite_data;
             }
         }
     }
+    get_screen_mutex();
+    memcpy(get_screen(), local_screen, TERM_X * TERM_Y);
+    raise_frame();
+    release_screen_mutex();
     toggle_priv();
     gp_reg_access(0xF, &overflow, REG_ST);
     toggle_priv();
+    free(local_screen);
 ENDINST
 
 INSTN(skp)

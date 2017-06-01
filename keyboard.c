@@ -19,123 +19,111 @@
 #include <stdio.h>
 #include <pthread.h>
 
-bool key_state[NUM_KEYS];
-bool keyb_initialized = false;
+pthread_mutex_t keyboard_fifo_mutex;
 
-pthread_t keyb_tid;
+bool	key_status[NUM_KEYS];
 
-#define CALL_RETRY(retvar, expression) do { \
-retvar = (expression); \
-} while (retvar == -1 && errno == EINTR);
+/* Keyboard FIFO Operations */
+#define GET_KEYBOARD_MUTEX								\
+	pthread_mutex_lock(&keyboard_fifo_mutex);
+
+#define RELEASE_KEYBOARD_MUTEX								\
+	pthread_mutex_unlock(&keyboard_fifo_mutex);
 
 void keyboard_init()
 {
-    memset(key_state, 0, NUM_KEYS);
-
-    /* Disable need to press enter before sending terminal char to stdin */
-    system ("/bin/stty raw");
-    /* Disable echo */
-    system ("stty -echo");
-
-    keyb_initialized = true;
+	pthread_mutex_init(&keyboard_fifo_mutex, NULL);
+	memset(key_status, false, NUM_KEYS);
 }
 
 int16_t get_keyMap(int keyCharacter)
 {
-    switch (keyCharacter) {
-        case '1':
-            return (1);
-        case '2':
-            return (2);
-        case '3':
-            return (3);
-        case '4':
-            return (12);
-        case 'q':
-        case 'Q':
-            return (4);
-        case 'w':
-        case 'W':
-            return (5);
-        case 'e':
-        case 'E':
-            return (6);
-        case 'r':
-        case 'R':
-            return (13);
-        case 'a':
-        case 'A':
-            return (7);
-        case 's':
-        case 'S':
-            return (8);
-        case 'd':
-        case 'D':
-            return (9);
-        case 'f':
-        case 'F':
-            return (14);
-        case 'z':
-        case 'Z':
-            return (10);
-        case 'x':
-        case 'X':
-            return (0);
-        case 'c':
-        case 'C':
-            return (11);
-        case 'v':
-        case 'V':
-            return (15);
-        default:
-            /* Not an actual emulated key */
-            return (-1);
-            break;
-    }
+	switch (keyCharacter) {
+		case '4':
+			return (0);
+		case '1':
+			return (1);
+		case '2':
+			return (2);
+		case '3':
+			return (3);
+		case 'q':
+		case 'Q':
+			return (4);
+		case 'w':
+		case 'W':
+			return (5);
+		case 'e':
+		case 'E':
+			return (6);
+		case 'a':
+		case 'A':
+			return (7);
+		case 's':
+		case 'S':
+			return (8);
+		case 'd':
+		case 'D':
+			return (9);
+		case 'z':
+		case 'Z':
+			return (10);
+		case 'x':
+		case 'X':
+			return (11);
+		case 'c':
+		case 'C':
+			return (12);
+		case 'b':
+		case 'B':
+			return (13);
+		case 'n':
+		case 'N':
+			return (14);
+		case 'm':
+		case 'M':
+			return (15);
+		default:
+			/* Not an actual emulated key */
+			return (-1);
+			break;
+	}
 }
 
 bool check_keyPressed(uint8_t keyId)
 {
-    if (keyId > 0xF) mypanic("Illegal keyId\n");
-    
-    int16_t keyPressedId = -1;
-    int val_avail = 0;
-    fd_set set;
-    struct timeval timeout;
-    
-    FD_ZERO (&set);
-    FD_SET (STDIN_FILENO, &set);
-    
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-    
-    CALL_RETRY (val_avail, select (FD_SETSIZE, &set, NULL, NULL, &timeout));
-    if (val_avail == 0) return false;
-    
-    int keyp = fgetc(stdin);
-    keyPressedId = get_keyMap(keyp);
-    
-    if (keyPressedId == -1) return false;
-    if (keyPressedId == keyId) return true;
-    else return false;
+	bool is_pressed = false;
+	if (keyId >= NUM_KEYS) return false;
+	GET_KEYBOARD_MUTEX;
+	is_pressed = (key_status[keyId]);
+	RELEASE_KEYBOARD_MUTEX;
+	return is_pressed;
 }
 
 int16_t get_keyPressed()
 {
-    int val_avail = 0;
-    fd_set set;
-    struct timeval timeout;
-    
-    FD_ZERO (&set);
-    FD_SET (STDIN_FILENO, &set);
-    
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-    
-    CALL_RETRY (val_avail, select (FD_SETSIZE, &set, NULL, NULL, &timeout));
-    if (val_avail == 0) return -1;
+	int16_t val_pressed = -1;
+	GET_KEYBOARD_MUTEX;
+	for (int i = 0; i < NUM_KEYS; i++) {
+		if (key_status[i]) val_pressed = i;
+	}
+	RELEASE_KEYBOARD_MUTEX;
+	return val_pressed;
 
-    int keyp = fgetc(stdin);
+}
 
-    return get_keyMap(keyp);
+void gl_keyUpHandler(unsigned char keyid, int one, int two) {
+	int16_t key_idx = get_keyMap(keyid);
+	if (key_idx == -1) return;
+	GET_KEYBOARD_MUTEX;
+	key_status[key_idx] = false;
+	RELEASE_KEYBOARD_MUTEX;
+}
+void gl_keyDownHandler(unsigned char keyid, int one, int two)
+{
+	int16_t key_idx = get_keyMap(keyid);
+	if (key_idx == -1) return;
+	GET_KEYBOARD_MUTEX;
+	key_status[key_idx] = true;
+	RELEASE_KEYBOARD_MUTEX;
 }

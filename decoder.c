@@ -5,7 +5,7 @@
 //  Created by Venkat Srinivasan on 2/22/17.
 //  Copyright © 2017 Venkat Srinivasan. All rights reserved.
 //
-
+#include "displaysettings.h"
 #include "decoder.h"
 #include "services.h"
 #include "memory.h"
@@ -181,20 +181,13 @@ void decode_me(uint16_t instn)
 }
 
 pthread_t display_tid;
-void run_me()
+void* run_me(char* name)
 {
     uint16_t nextInstruction = 0;
 
     struct timespec time_duration;
     time_duration.tv_sec = 0;
-    time_duration.tv_nsec = 1000000;
-
-#if !defined(MASTER_DEBUG)
-    if (pthread_create(&display_tid, NULL, &screen_display, NULL) != 0) {
-        mypanic("Cannot create timer thread!\n");
-        return;
-    }
-#endif
+    time_duration.tv_nsec = 20000;
 
     while (true) {
         /* Constantly run the processor */
@@ -205,7 +198,9 @@ void run_me()
         /* Decode/Execute */
         decode_me(nextInstruction);
 
-        nanosleep(&time_duration, NULL);
+	/* A mutex violation here, but it's probably for the best. Too slow to get mutex */
+	/* TODO: Implement a RW lock so that we can get the best of both worlds */
+	while (check_frame());
     }
 }
 
