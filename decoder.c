@@ -5,7 +5,6 @@
 //  Created by Venkat Srinivasan on 2/22/17.
 //  Copyright © 2017 Venkat Srinivasan. All rights reserved.
 //
-#include "displaysettings.h"
 #include "decoder.h"
 #include "services.h"
 #include "memory.h"

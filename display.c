@@ -6,7 +6,6 @@
 //  Copyright © 2017 Venkat Srinivasan. All rights reserved.
 //
 
-#include "displaysettings.h"
 #include "services.h"
 #include "memory.h"
 #include <stdint.h>
