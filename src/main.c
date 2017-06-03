@@ -19,6 +19,7 @@
 #include "memory.h"
 #include "decoder.h"
 #include "display.h"
+#include "graphics_manager.h"
 #include "keyboard.h"
 #include "services.h"
 #include "rommanager.h"
@@ -38,24 +39,14 @@ int main(int argc, char** argv) {
 	init_memory();
 	keyboard_init();
 	regs_init();
-	rom_init(argv[1]);
+	glutInit(&argc, argv);
+	graphics_manager_init();
 
 	// Setup OpenGL
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowSize(TERM_X + 200, TERM_Y + 100);
-
 	display_init();
-	glutCreateWindow("Venkat CHIP8");
-
-	glutDisplayFunc(draw_screen);
-	glutIdleFunc(draw_screen);
-	glutReshapeFunc(reshape_window);
-	glutKeyboardFunc(gl_keyDownHandler);
-	glutKeyboardUpFunc(gl_keyUpHandler);
 	if (pthread_create(&decoder_thread_tid, NULL, &run_me, NULL) != 0) {
 		mypanic("Cannot create decoder thread!\n");
 		return 0;
 	}
-	glutMainLoop();
+	graphics_manager_run();
 }

@@ -27,10 +27,8 @@
 #include <stdlib.h>
 #include "display.h"
 
-pthread_mutex_t display_mutex;
 int magnification = 10;
 
-bool new_frame = false;
 
 uint8_t chip8_fontset[80] =
 {
@@ -52,75 +50,7 @@ uint8_t chip8_fontset[80] =
 	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-uint8_t screen[TERM_X * TERM_Y];
-
-uint8_t* get_screen()
-{
-	return screen;
-}
-
-void get_screen_mutex()
-{
-	pthread_mutex_lock(&display_mutex);
-}
-
-void release_screen_mutex()
-{
-	pthread_mutex_unlock(&display_mutex);
-}
-
 /* NOTE: Ensure you have mutex before calling! */
-void raise_frame()
-{
-	new_frame = true;
-}
-
-void lower_frame()
-{
-	new_frame = false;
-}
-
-bool check_frame()
-{
-	return new_frame;
-}
-
-void screenclear()
-{
-	get_screen_mutex();
-	memset(screen, 0, TERM_X * TERM_Y);
-	release_screen_mutex();
-}
-
-#define SET_PIXEL_AT(_i, _j, _mag)							\
-	glBegin(GL_QUADS);								\
-	glVertex3f((_i * _mag) + 0.0f,     (_j * _mag) + 0.0f,	 0.0f);			\
-	glVertex3f((_i * _mag) + 0.0f,     (_j * _mag) + magnification, 0.0f);		\
-	glVertex3f((_i * _mag) + _mag, (_j * _mag) + _mag, 0.0f);			\
-	glVertex3f((_i * _mag) + _mag, (_j * _mag) + 0.0f,	 0.0f);			\
-	glEnd();
-
-void draw_screen()
-{
-	get_screen_mutex();
-	/* Need to be fast -- no reason to call debugging allocate func */
-	uint8_t *local_screen = (uint8_t *) malloc(TERM_X * TERM_Y);
-	memcpy(local_screen, screen, TERM_X * TERM_Y);
-	lower_frame();
-	release_screen_mutex();
-	uint32_t i, j = 0;
-	for (i = 0; i < TERM_X; i++) {
-		for (j = 0; j < TERM_Y; j++) {
-			if (local_screen[i + ((j) * TERM_X)])
-				glColor3f(0.0f,0.0f,0.0f);
-			else
-				glColor3f(1.0f,1.0f,1.0f);
-			SET_PIXEL_AT(i, j, magnification);
-		}
-	}
-	free(local_screen);
-	glutSwapBuffers();
-}
 
 void display_init()
 {
@@ -132,17 +62,5 @@ void display_init()
 		}
 	}
 	ACCESSPRINT(printf("Finished loading digit sprites into memory.\n"););
-	pthread_mutex_init(&display_mutex, NULL);
 }
-
-void reshape_window(GLsizei w, GLsizei h)
-{
-	glClearColor(0.0f, 0.0f, 0.5f, 0.0f);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0, w, h, 0);
-	glMatrixMode(GL_MODELVIEW);
-	glViewport(0, 0, w, h);
-}
-
 

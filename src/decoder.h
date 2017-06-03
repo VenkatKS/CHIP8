@@ -17,7 +17,8 @@
 #define GET_SECOND_NIBBLE(two_bytes) (two_bytes & 0xF0) >> 4
 /* Main processor emulation loop */
 void* run_me();
-
+void start_decoder();
+void stop_decoder();
 
 
 #endif /* decoder_h */
