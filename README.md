@@ -8,9 +8,6 @@ The code in the main branch uses OPENGL libraries to display the CHIP8 graphics 
 To build, please run make from src/.
 
 ## How to Run
-After doing so, the compiled emulator binary (under src/build) can be launched by specifying a CHIP-8 binary/ROM file as the second parameter.
-
-## How to Load ROMs
 The emulator automatically scans its directory and all sub-directories (and sub-sub-directories, etc.) for CHIP8 ROM binaries (any file with .c8 extension). Once the emulator is launched, please click anywhere and hover over "Load ROM" menu option. All your ROMs should be populated there. If you can't find your binary there, please ensure the file you want to run has the extension ".c8" and is in the same folder (or its subfolders) as the emulator.
 
 Developed, compiled, and tested on MacOS.
