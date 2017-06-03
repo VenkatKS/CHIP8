@@ -11,7 +11,7 @@
 #include "regs.h"
 #include "memory.h"
 #include "graphics_manager.h"
-#include "display.h"
+#include "sprite_manager.h"
 #include "keyboard.h"
 #include <stdlib.h>
 #include <stdio.h>

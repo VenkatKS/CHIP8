@@ -18,7 +18,7 @@
 #include "regs.h"
 #include "memory.h"
 #include "decoder.h"
-#include "display.h"
+#include "sprite_manager.h"
 #include "graphics_manager.h"
 #include "keyboard.h"
 #include "services.h"
@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 	graphics_manager_init();
 
 	// Setup OpenGL
-	display_init();
+	sprite_init();
 	if (pthread_create(&decoder_thread_tid, NULL, &run_me, NULL) != 0) {
 		mypanic("Cannot create decoder thread!\n");
 		exit(-1);

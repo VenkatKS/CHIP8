@@ -10,7 +10,7 @@
 #include "memory.h"
 #include "regs.h"
 #include "instns.h"
-#include "display.h"
+#include "sprite_manager.h"
 #include "graphics_manager.h"
 #include "keyboard.h"
 #include <stdlib.h>

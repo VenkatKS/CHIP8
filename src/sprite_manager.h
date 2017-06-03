@@ -22,6 +22,6 @@
 #define NUM_SPRITES 16
 #define BYTES_PER_SPRITE 5
 
-void display_init();
+void sprite_init();
 
 #endif /* display_h */

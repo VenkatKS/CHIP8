@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include <string.h>
 #include "graphics_manager.h"
-#include "display.h"
+#include "sprite_manager.h"
 #include "keyboard.h"
 #include "menu.h"
 
@@ -51,7 +51,7 @@ void graphics_manager_init()
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(SCREEN_WIDTH + 200, SCREEN_HEIGHT + 100);
 	window_id = glutCreateWindow("Venkat CHIP8");
-	menu_init(window_id);
+	menu_init((int) window_id);
 	glutDisplayFunc(draw_screen);
 	glutIdleFunc(draw_screen);
 	glutReshapeFunc(reshape_window);
@@ -113,25 +113,6 @@ void game_screen_clear()
 {
 	get_screen_mutex();
 	memset(game_screen, 0, GAME_WIDTH * GAME_HEIGHT);
-	raise_frame();
-	release_screen_mutex();
-}
-
-uint8_t *_get_full_screen()
-{
-	uint8_t *local_screen;
-	get_screen_mutex();
-	/* Need to be fast -- no reason to call debugging allocate func */
-	local_screen = (uint8_t *) malloc(SCREEN_WIDTH * SCREEN_HEIGHT);
-	memcpy(local_screen, screen, SCREEN_WIDTH * SCREEN_HEIGHT);
-	release_screen_mutex();
-	return local_screen;
-}
-
-void _set_full_screen(uint8_t *local_screen)
-{
-	get_screen_mutex();
-	memcpy(screen, local_screen, SCREEN_WIDTH * SCREEN_HEIGHT);
 	raise_frame();
 	release_screen_mutex();
 }

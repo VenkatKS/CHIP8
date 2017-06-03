@@ -31,6 +31,7 @@
 #include "memory.h"
 #include "regs.h"
 #include "graphics_manager.h"
+#include "app_strings.h"
 
 uint64_t main_menu = 0;
 uint64_t sub_menu = 0;
@@ -51,7 +52,7 @@ void populate_menu(char *dir, int depth)
 	struct dirent *entry;
 	struct stat statbuf;
 	if((dp = opendir(dir)) == NULL) {
-		fprintf(stderr,"Directory cannot be scanned: %s\n", dir);
+		fprintf(stderr, DIR_SCAN_ERROR_MSG);
 		return;
 	}
 
@@ -98,11 +99,11 @@ void menu_handler(int choice)
 		case INCREASE_EMULATION_SPEED:
 		case DECREASE_EMULATION_SPEED:
 		case PAUSE_EMULATION:
-			printf("Functions not yet implemented!");
+			printf("TODO: Functions not yet implemented!");
 			break;
 		case LOAD_ROM:
 			stop_decoder();
-			printf("Please Enter ROM Path: ");
+			printf(ROM_PATH_PROMPT_MSG);
 			scanf("%s", filelocation);
 			set_pc(STARTING_PC);
 			game_screen_clear();
@@ -130,23 +131,23 @@ void menu_init(int window_id)
 	getcwd(cwd, sizeof(cwd));
 
 	sub_menu = glutCreateMenu(menu_handler);
-	glutAddMenuEntry("Pause Emulation", PAUSE_EMULATION);
-	glutAddMenuEntry("Increase Emulation Speed", INCREASE_EMULATION_SPEED);
-	glutAddMenuEntry("Decrease Emulation Speed", DECREASE_EMULATION_SPEED);
+	glutAddMenuEntry(PAUSE_EMULATION_LABEL, PAUSE_EMULATION);
+	glutAddMenuEntry(SPEED_UP_EMULATION_LABEL, INCREASE_EMULATION_SPEED);
+	glutAddMenuEntry(SLOW_DOWN_EMULATION_LABEL, DECREASE_EMULATION_SPEED);
 	all_roms_menu = glutCreateMenu(menu_handler);
-	printf("Scanning for ROM Files under: %s\n", cwd);
+	printf(SCANNING_FOR_ROMS_MSG);
 	populate_menu(cwd, 0);
 
 	/* Warn the user */
 	if (rom_id == ALL_ROMS_RSVD_START + 1) {
-		printf("NO ROMS FOUND! Please place ROMs in the same folder as emulator. Please ensure ROMs have .c8 extension.\n");
+		printf(NO_ROM_FOUND_MSG);
 	}
 
 	main_menu = glutCreateMenu(menu_handler);
-	glutAddSubMenu("Emulation Controls", (int) sub_menu);
-	glutAddSubMenu("Load New ROM", (int) all_roms_menu);
-	glutAddMenuEntry("Quit", QUIT_APPLICATION);
-	glutAddMenuEntry("Open ROM From Path (terminal input)", LOAD_ROM);
+	glutAddSubMenu(EMULATION_CONTROL_LABEL, (int) sub_menu);
+	glutAddSubMenu(LOAD_NEW_ROM_LABEL, (int) all_roms_menu);
+	glutAddMenuEntry(QUIT_LABEL, QUIT_APPLICATION);
+	glutAddMenuEntry(OPEN_RAW_PATH_ROM_LABEL, LOAD_ROM);
 	glutAttachMenu(GLUT_LEFT_BUTTON);
 
 }

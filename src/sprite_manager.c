@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "display.h"
+#include "sprite_manager.h"
 
 int magnification = 10;
 
@@ -52,7 +52,7 @@ uint8_t chip8_fontset[80] =
 
 /* NOTE: Ensure you have mutex before calling! */
 
-void display_init()
+void sprite_init()
 {
 	uint16_t xIterator, yIterator, memoryIterator = 0;
 	ACCESSPRINT(printf("Loading digit sprites into memory.\n"););
