@@ -42,6 +42,7 @@ void regs_init();
 
 
 /* PROGRAM COUNTER */
+#define STARTING_PC	0x200
 uint16_t get_pc();
 void set_pc(uint16_t npc);
 void increment_pc();

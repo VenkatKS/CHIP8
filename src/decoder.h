@@ -19,6 +19,7 @@
 void* run_me();
 void start_decoder();
 void stop_decoder();
+void stop_decoder();
 
 
 #endif /* decoder_h */

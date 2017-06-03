@@ -67,7 +67,7 @@ void regs_init()
     active_I = allocate(sizeof(I_reg));
     active_timers = allocate(sizeof(timer_regs));
     active_system = allocate(sizeof(system_regs));
-    active_system->pc = 0x200;
+    active_system->pc = STARTING_PC;
     initialize_sp(&active_system->sp);
     pthread_mutex_init(&active_timers->count_mutex, NULL);
     initalized = true;

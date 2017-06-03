@@ -35,7 +35,6 @@
 
 pthread_t decoder_thread_tid;
 int main(int argc, char** argv) {
-	if (argc < 2) mypanic("Please specify ROM file!\n");
 	init_memory();
 	keyboard_init();
 	regs_init();
@@ -46,7 +45,7 @@ int main(int argc, char** argv) {
 	display_init();
 	if (pthread_create(&decoder_thread_tid, NULL, &run_me, NULL) != 0) {
 		mypanic("Cannot create decoder thread!\n");
-		return 0;
+		exit(-1);
 	}
 	graphics_manager_run();
 }
