@@ -19,6 +19,8 @@ typedef enum {
 	LOAD_ROM,
 	INCREASE_EMULATION_SPEED,
 	DECREASE_EMULATION_SPEED,
-	PAUSE_EMULATION
+	PAUSE_EMULATION,
+	ALL_ROMS_RSVD_START
+	/* All enumerations below this is reserved for ROMs in the folder */
 } MENU_ACTION;
 #endif /* menu_h */
