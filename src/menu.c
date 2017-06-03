@@ -36,7 +36,7 @@
 uint64_t main_menu = 0;
 uint64_t sub_menu = 0;
 uint64_t all_roms_menu = 0;
-
+uint64_t roms_found = 0;
 extern pthread_t decoder_thread_tid;
 
 uint64_t rom_id = ALL_ROMS_RSVD_START;
@@ -78,6 +78,7 @@ void populate_menu(char *dir, int depth)
 				strcat(all_roms[idx], "/");
 				strcat(all_roms[idx], entry->d_name);
 				glutAddMenuEntry(entry->d_name, (int) rom_id++);
+				roms_found++;
 			}
 		}
 	}
@@ -96,6 +97,7 @@ void menu_handler(int choice)
 	switch (action_idx) {
 		case QUIT_APPLICATION:
 			exit(0);
+			return;
 		case INCREASE_EMULATION_SPEED:
 		case DECREASE_EMULATION_SPEED:
 		case PAUSE_EMULATION:
@@ -111,7 +113,7 @@ void menu_handler(int choice)
 			start_decoder();
 			break;
 		default:
-			if (choice < ALL_ROMS_RSVD_START) mypanic("Unimplemented menu choice.");
+			if (roms_found == 0) mypanic("Unimplemented menu choice.");
 			idx = choice - ALL_ROMS_RSVD_START;
 			strcpy(filelocation, all_roms[idx]);
 			stop_decoder();
@@ -139,7 +141,7 @@ void menu_init(int window_id)
 	populate_menu(cwd, 0);
 
 	/* Warn the user */
-	if (rom_id == ALL_ROMS_RSVD_START + 1) {
+	if (roms_found == 0) {
 		printf(NO_ROM_FOUND_MSG);
 	}
 
