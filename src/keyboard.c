@@ -30,64 +30,74 @@ bool	key_status[NUM_KEYS];
 #define RELEASE_KEYBOARD_MUTEX								\
 	pthread_mutex_unlock(&keyboard_fifo_mutex);
 
+/* Default Keybindings */
+key_binding ACTIVE_BINDING;
+
 void keyboard_init()
 {
 	pthread_mutex_init(&keyboard_fifo_mutex, NULL);
 	memset(key_status, false, NUM_KEYS);
+	memset(ACTIVE_BINDING.keycodes, -1, NUM_ASCII);
+
+	/* Initialize default keycodes */
+	ACTIVE_BINDING.keycodes['4'] = 0;
+	ACTIVE_BINDING.keycodes['1'] = 1;
+	ACTIVE_BINDING.keycodes['2'] = 2;
+	ACTIVE_BINDING.keycodes['3'] = 3;
+	ACTIVE_BINDING.keycodes['q'] = 4;
+	ACTIVE_BINDING.keycodes['w'] = 5;
+	ACTIVE_BINDING.keycodes['e'] = 6;
+	ACTIVE_BINDING.keycodes['a'] = 7;
+	ACTIVE_BINDING.keycodes['s'] = 8;
+	ACTIVE_BINDING.keycodes['d'] = 9;
+	ACTIVE_BINDING.keycodes['z'] = 0xA;
+	ACTIVE_BINDING.keycodes['x'] = 0xB;
+	ACTIVE_BINDING.keycodes['c'] = 0xC;
+	ACTIVE_BINDING.keycodes['b'] = 0xD;
+	ACTIVE_BINDING.keycodes['n'] = 0xE;
+	ACTIVE_BINDING.keycodes['m'] = 0xF;
 }
+
+/*
+ * A downside of our keybinding implementation is the increased
+ * time it takes to actually unbind a key. But it's still better
+ * than having to iterate the array everytime a key is pressed.
+ */
+
+bool resetKeyBinding(uint8_t chip8key, uint8_t ascii) {
+	int idx = 0;
+
+	/* Not an ascii we can tolerate */
+	if (ascii >= NUM_ASCII) return false;
+
+	/* Remove old key binding */
+	for (idx = 0; idx < NUM_ASCII; idx++) {
+		if (ACTIVE_BINDING.keycodes[idx] == chip8key) {
+			ACTIVE_BINDING.keycodes[idx] = -1;
+			break;
+		}
+	}
+
+	/* Set the new key binding */
+	ACTIVE_BINDING.keycodes[ascii] = chip8key;
+	return true;
+}
+
+
+#define IS_CAPITAL_LETTER(_ascii)	(_ascii >= 'A' && _ascii <= 'Z')
+#define CAPITAL_OFFSET			0x20
 
 int16_t get_keyMap(int keyCharacter)
 {
-	switch (keyCharacter) {
-		case '4':
-			return (0);
-		case '1':
-			return (1);
-		case '2':
-			return (2);
-		case '3':
-			return (3);
-		case 'q':
-		case 'Q':
-			return (4);
-		case 'w':
-		case 'W':
-			return (5);
-		case 'e':
-		case 'E':
-			return (6);
-		case 'a':
-		case 'A':
-			return (7);
-		case 's':
-		case 'S':
-			return (8);
-		case 'd':
-		case 'D':
-			return (9);
-		case 'z':
-		case 'Z':
-			return (10);
-		case 'x':
-		case 'X':
-			return (11);
-		case 'c':
-		case 'C':
-			return (12);
-		case 'b':
-		case 'B':
-			return (13);
-		case 'n':
-		case 'N':
-			return (14);
-		case 'm':
-		case 'M':
-			return (15);
-		default:
-			/* Not an actual emulated key */
-			return (-1);
-			break;
-	}
+	int keyCh = -1;
+
+	/* Convert into lower case */
+	if (IS_CAPITAL_LETTER(keyCharacter))
+		keyCh = keyCharacter + CAPITAL_OFFSET;
+	else
+		keyCh = keyCharacter;
+
+	return ACTIVE_BINDING.keycodes[keyCh];
 }
 
 bool check_keyPressed(uint8_t keyId)
@@ -119,6 +129,7 @@ void gl_keyUpHandler(unsigned char keyid, int one, int two) {
 	key_status[key_idx] = false;
 	RELEASE_KEYBOARD_MUTEX;
 }
+
 void gl_keyDownHandler(unsigned char keyid, int one, int two)
 {
 	int16_t key_idx = get_keyMap(keyid);
