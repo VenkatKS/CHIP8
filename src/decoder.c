@@ -189,6 +189,11 @@ void stop_decoder()
 	running = false;
 }
 
+bool get_decoder_state()
+{
+	return running;
+}
+
 pthread_t display_tid;
 void* run_me(char* name)
 {

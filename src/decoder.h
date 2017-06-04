@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <inttypes.h>
+#include <stdbool.h>
 
 #define GET_TOP_NIBBLE(two_bytes) ((two_bytes & 0xF000) >> 12)
 #define GET_BOTTOM_NIBBLE(two_bytes) (two_bytes & 0xF)
@@ -20,6 +21,6 @@ void* run_me();
 void start_decoder();
 void stop_decoder();
 void stop_decoder();
-
+bool get_decoder_state();
 
 #endif /* decoder_h */

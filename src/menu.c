@@ -33,9 +33,12 @@
 #include "graphics_manager.h"
 #include "app_strings.h"
 
+/* Menu IDs */
 uint64_t main_menu = 0;
 uint64_t sub_menu = 0;
 uint64_t all_roms_menu = 0;
+
+
 uint64_t roms_found = 0;
 extern pthread_t decoder_thread_tid;
 
@@ -43,6 +46,7 @@ uint64_t rom_id = ALL_ROMS_RSVD_START;
 
 char *all_roms[100];
 
+/* Iterates through each sub-directory and populates menu */
 void populate_menu(char *dir, int depth)
 {
 	DIR *dp;
@@ -69,7 +73,7 @@ void populate_menu(char *dir, int depth)
 		}
 		else {
 			getcwd(cur_cwd, sizeof(cur_cwd));
-			if (strstr(entry->d_name, ".c8") != NULL) {
+			if (strstr(entry->d_name, CHIP8_ROM_FILE_EXTENSION) != NULL) {
 				/* Store the path to this ROM so we can load it later */
 				idx = rom_id - ALL_ROMS_RSVD_START;
 				/* No need to worry about cleaning up this alloc, we need this till the end */
@@ -100,8 +104,11 @@ void menu_handler(int choice)
 			return;
 		case INCREASE_EMULATION_SPEED:
 		case DECREASE_EMULATION_SPEED:
-		case PAUSE_EMULATION:
 			printf("TODO: Functions not yet implemented!");
+			break;
+		case PAUSE_EMULATION:
+			if (get_decoder_state()) stop_decoder();
+			else start_decoder();
 			break;
 		case LOAD_ROM:
 			stop_decoder();
@@ -134,8 +141,6 @@ void menu_init(int window_id)
 
 	sub_menu = glutCreateMenu(menu_handler);
 	glutAddMenuEntry(PAUSE_EMULATION_LABEL, PAUSE_EMULATION);
-	glutAddMenuEntry(SPEED_UP_EMULATION_LABEL, INCREASE_EMULATION_SPEED);
-	glutAddMenuEntry(SLOW_DOWN_EMULATION_LABEL, DECREASE_EMULATION_SPEED);
 	all_roms_menu = glutCreateMenu(menu_handler);
 	printf(SCANNING_FOR_ROMS_MSG);
 	populate_menu(cwd, 0);
@@ -146,10 +151,10 @@ void menu_init(int window_id)
 	}
 
 	main_menu = glutCreateMenu(menu_handler);
-	glutAddSubMenu(EMULATION_CONTROL_LABEL, (int) sub_menu);
 	glutAddSubMenu(LOAD_NEW_ROM_LABEL, (int) all_roms_menu);
-	glutAddMenuEntry(QUIT_LABEL, QUIT_APPLICATION);
 	glutAddMenuEntry(OPEN_RAW_PATH_ROM_LABEL, LOAD_ROM);
+	glutAddSubMenu(EMULATION_CONTROL_LABEL, (int) sub_menu);
+	glutAddMenuEntry(QUIT_LABEL, QUIT_APPLICATION);
 	glutAttachMenu(GLUT_LEFT_BUTTON);
 
 }

@@ -9,6 +9,10 @@
 #ifndef app_strings_h
 #define app_strings_h
 
+/* Functional Constants */
+#define CHIP8_ROM_FILE_EXTENSION	".c8"
+
+
 /* Message Strings */
 #define	NO_ROM_FOUND_MSG		\
 	"NO ROMS FOUND! Please place ROMs in the same folder as emulator. Please ensure ROMs have .c8 extension.\n"
@@ -24,7 +28,7 @@
 #define	LOAD_NEW_ROM_LABEL		"Load New ROM"
 #define	QUIT_LABEL			"Quit"
 #define	OPEN_RAW_PATH_ROM_LABEL		"Open ROM From Path (from stdin)"
-#define	PAUSE_EMULATION_LABEL		"Pause Emulation"
+#define	PAUSE_EMULATION_LABEL		"Start/Pause Emulation"
 #define	SPEED_UP_EMULATION_LABEL	"Increase Emulation Speed"
 #define	SLOW_DOWN_EMULATION_LABEL	"Decrease Emulation Speed"
 
