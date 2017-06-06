@@ -36,7 +36,9 @@ typedef struct {
 } key_binding;
 
 /* Function to change the key binding of a CHIP8 key */
-bool resetKeyBinding(uint8_t chip8key, uint8_t ascii);
+bool resetSpecificKeyBinding(uint8_t chip8key, uint8_t ascii);
+void rebind_keys();
+void set_key_binding_default();
 
 void keyboard_init();
 bool check_keyPressed(uint8_t keyId);

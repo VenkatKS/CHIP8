@@ -31,13 +31,15 @@
 #include "memory.h"
 #include "regs.h"
 #include "graphics_manager.h"
+#include "key_rebind_manager.h"
 #include "app_strings.h"
+#include "keyboard.h"
 
 /* Menu IDs */
 uint64_t main_menu = 0;
 uint64_t sub_menu = 0;
 uint64_t all_roms_menu = 0;
-
+uint64_t keys_menu = 0;
 
 uint64_t roms_found = 0;
 extern pthread_t decoder_thread_tid;
@@ -47,7 +49,7 @@ uint64_t rom_id = ALL_ROMS_RSVD_START;
 char *all_roms[100];
 
 /* Iterates through each sub-directory and populates menu */
-void populate_menu(char *dir, int depth)
+void populate_roms_menu(char *dir, int depth)
 {
 	DIR *dp;
 	char cur_cwd[1024];
@@ -69,7 +71,7 @@ void populate_menu(char *dir, int depth)
 				continue;
 
 			/* Recurse at a new indent level */
-			populate_menu(entry->d_name,depth+4);
+			populate_roms_menu(entry->d_name,depth+4);
 		}
 		else {
 			getcwd(cur_cwd, sizeof(cur_cwd));
@@ -88,6 +90,20 @@ void populate_menu(char *dir, int depth)
 	}
 	chdir("..");
 	closedir(dp);
+}
+
+#define MAX_CHIP8_KEY_LEN	100
+void populate_keys_submenu()
+{
+	int idx = 0;
+	char statement[MAX_CHIP8_KEY_LEN];
+	int enum_idx = (int) KEY_0;
+
+	for (idx = 0; idx < NUM_KEYS; idx++) {
+		sprintf(statement, "Re-bind: %x", idx);
+		glutAddMenuEntry(statement, enum_idx);
+		enum_idx++;
+	}
 }
 
 /* Handles the actions behind the various menu choices */
@@ -119,6 +135,25 @@ void menu_handler(int choice)
 			rom_init(filelocation);
 			start_decoder();
 			break;
+		case KEY_0:
+		case KEY_1:
+		case KEY_2:
+		case KEY_3:
+		case KEY_4:
+		case KEY_5:
+		case KEY_6:
+		case KEY_7:
+		case KEY_8:
+		case KEY_9:
+		case KEY_A:
+		case KEY_B:
+		case KEY_C:
+		case KEY_D:
+		case KEY_E:
+		case KEY_F:
+			idx = (action_idx - KEY_0);
+			init_warning_screen(idx);
+			break;
 		default:
 			if (roms_found == 0) mypanic("Unimplemented menu choice.");
 			idx = choice - ALL_ROMS_RSVD_START;
@@ -143,15 +178,19 @@ void menu_init(int window_id)
 	glutAddMenuEntry(PAUSE_EMULATION_LABEL, PAUSE_EMULATION);
 	all_roms_menu = glutCreateMenu(menu_handler);
 	printf(SCANNING_FOR_ROMS_MSG);
-	populate_menu(cwd, 0);
+	populate_roms_menu(cwd, 0);
 
 	/* Warn the user */
 	if (roms_found == 0) {
 		printf(NO_ROM_FOUND_MSG);
 	}
 
+	keys_menu = glutCreateMenu(menu_handler);
+	populate_keys_submenu();
+
 	main_menu = glutCreateMenu(menu_handler);
 	glutAddSubMenu(LOAD_NEW_ROM_LABEL, (int) all_roms_menu);
+	glutAddSubMenu(REBIND_KEYS_LABEL, (int) keys_menu);
 	glutAddMenuEntry(OPEN_RAW_PATH_ROM_LABEL, LOAD_ROM);
 	glutAddSubMenu(EMULATION_CONTROL_LABEL, (int) sub_menu);
 	glutAddMenuEntry(QUIT_LABEL, QUIT_APPLICATION);

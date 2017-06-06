@@ -33,10 +33,15 @@ bool	key_status[NUM_KEYS];
 /* Default Keybindings */
 key_binding ACTIVE_BINDING;
 
-void keyboard_init()
+/* Regex Macros */
+#define INVALID_KEY_REBIND(_reg) (!((_reg >= 'a' && _reg <= 'z') ||			\
+	(_reg >= 'A' && _reg <= 'Z') || (_reg >= '0' && _reg <= '9')))
+#define IS_CAPITAL_LETTER(_ascii)	(_ascii >= 'A' && _ascii <= 'Z')
+#define CAPITAL_OFFSET			0x20
+#define CAR_RET				0x13
+
+void set_key_binding_default()
 {
-	pthread_mutex_init(&keyboard_fifo_mutex, NULL);
-	memset(key_status, false, NUM_KEYS);
 	memset(ACTIVE_BINDING.keycodes, -1, NUM_ASCII);
 
 	/* Initialize default keycodes */
@@ -57,6 +62,12 @@ void keyboard_init()
 	ACTIVE_BINDING.keycodes['n'] = 0xE;
 	ACTIVE_BINDING.keycodes['m'] = 0xF;
 }
+void keyboard_init()
+{
+	pthread_mutex_init(&keyboard_fifo_mutex, NULL);
+	memset(key_status, false, NUM_KEYS);
+	set_key_binding_default();
+}
 
 /*
  * A downside of our keybinding implementation is the increased
@@ -64,11 +75,14 @@ void keyboard_init()
  * than having to iterate the array everytime a key is pressed.
  */
 
-bool resetKeyBinding(uint8_t chip8key, uint8_t ascii) {
+bool resetSpecificKeyBinding(uint8_t chip8key, uint8_t ascii) {
 	int idx = 0;
 
 	/* Not an ascii we can tolerate */
 	if (ascii >= NUM_ASCII) return false;
+
+	if (IS_CAPITAL_LETTER(ascii))
+		ascii = ascii + CAPITAL_OFFSET;
 
 	/* Remove old key binding */
 	for (idx = 0; idx < NUM_ASCII; idx++) {
@@ -83,9 +97,34 @@ bool resetKeyBinding(uint8_t chip8key, uint8_t ascii) {
 	return true;
 }
 
+void rebind_keys()
+{
+	int idx = 0;
+	uint8_t ascii_used;
 
-#define IS_CAPITAL_LETTER(_ascii)	(_ascii >= 'A' && _ascii <= 'Z')
-#define CAPITAL_OFFSET			0x20
+	memset(ACTIVE_BINDING.keycodes, -1, NUM_ASCII);
+	printf("Re-binding the keys: \n");
+	for (idx = 0; idx < NUM_KEYS; idx++) {
+		printf("Please enter binding for CHIP8 key %d: ", idx);
+		ascii_used = getchar();
+		if (INVALID_KEY_REBIND(ascii_used)) {
+			/* Carriage return */
+			if (ascii_used == '\r') continue;
+
+			printf("Illegal key code. Please enter only alpha-numeric key bindings. \n");
+			idx--;
+			continue;
+		}
+
+		/* Convert into lower case */
+		if (IS_CAPITAL_LETTER(ascii_used))
+			ascii_used = ascii_used + CAPITAL_OFFSET;
+
+		ACTIVE_BINDING.keycodes[ascii_used] = idx;
+		printf("Registered key %c for CHIP8 button %d\n", ascii_used, idx);
+	}
+	printf("Re-binding done!\n");
+}
 
 int16_t get_keyMap(int keyCharacter)
 {

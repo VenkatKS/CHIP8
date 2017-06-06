@@ -46,6 +46,7 @@ GAME_SCREEN_DIMS running_game_dimensions = {GAME_WIDTH, GAME_HEIGHT};
 
 pthread_mutex_t display_mutex;
 
+/* Call this for the first init */
 void graphics_manager_init()
 {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
@@ -58,6 +59,16 @@ void graphics_manager_init()
 	glutKeyboardFunc(gl_keyDownHandler);
 	glutKeyboardUpFunc(gl_keyUpHandler);
 	pthread_mutex_init(&display_mutex, NULL);
+}
+
+/* Call this whenever the view changes */
+void graphics_manager_reinit()
+{
+	glutDisplayFunc(draw_screen);
+	glutIdleFunc(draw_screen);
+	glutReshapeFunc(reshape_window);
+	glutKeyboardFunc(gl_keyDownHandler);
+	glutKeyboardUpFunc(gl_keyUpHandler);
 }
 
 void graphics_manager_run()
@@ -132,6 +143,11 @@ void reshape_window(GLsizei w, GLsizei h)
 	glViewport(0, 0, w, h);
 }
 
+uint64_t get_windowid()
+{
+	return window_id;
+}
+
 #define SET_PIXEL_AT(_i, _j, _mag)							\
 	glBegin(GL_QUADS);								\
 	glVertex3f((_i * _mag) + 0.0f,     (_j * _mag) + 0.0f,	 0.0f);			\
@@ -143,15 +159,16 @@ void reshape_window(GLsizei w, GLsizei h)
 void draw_screen()
 {
 	if (!new_frame) return;
+	glutSetWindow((int) window_id);
 	glClear(GL_COLOR_BUFFER_BIT);
 	uint8_t *local_screen = get_game_screen();
 	uint32_t i, j = 0;
 	for (i = 0; i < GAME_WIDTH; i++) {
 		for (j = 0; j < GAME_HEIGHT; j++) {
 			if (local_screen[i + ((j) * GAME_WIDTH)])
-				glColor3f(0.0f,0.0f,0.0f);
+				glColor3f(1.0f, 1.0f, 1.0f);
 			else
-				glColor3f(1.0f,1.0f,1.0f);
+				glColor3f(0.0f, 0.0f, 0.0f);
 			SET_PIXEL_AT((i), (j), PIXEL_MAGNIFICATION);
 		}
 	}

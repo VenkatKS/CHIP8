@@ -31,10 +31,13 @@
 #define	PAUSE_EMULATION_LABEL		"Start/Pause Emulation"
 #define	SPEED_UP_EMULATION_LABEL	"Increase Emulation Speed"
 #define	SLOW_DOWN_EMULATION_LABEL	"Decrease Emulation Speed"
+#define REBIND_KEYS_LABEL		"Rebind All CHIP8 Keys"
 
 /* Error Message Strings */
 #define DIR_SCAN_ERROR_MSG		"Directory cannot be scanned: %s\n", dir
 
-
+/* Warning Window Strings */
+#define WARNING_WINDOW_HEADING_LABEL	"Please Enter New Key Binding"
+#define KEY_REBIND_PROMPT_STRING	"Please Enter The Key You Want To Rebind To CHIP8 Key %d", keyToRebind
 
 #endif /* app_strings_h */

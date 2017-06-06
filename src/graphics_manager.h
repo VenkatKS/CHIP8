@@ -24,6 +24,7 @@
 
 /* Initialize */
 void graphics_manager_init();
+void graphics_manager_reinit();
 
 /* Get the current GAME screen data */
 uint8_t *get_game_screen();
@@ -45,6 +46,7 @@ void game_screen_clear();
 uint8_t *get_game_screen();
 void set_game_screen(uint8_t *local_screen);
 bool check_frame();
+uint64_t get_windowid();
 
 /* Game Control Handler */
 void draw_screen();
