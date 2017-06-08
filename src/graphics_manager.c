@@ -50,7 +50,7 @@ pthread_mutex_t display_mutex;
 void graphics_manager_init()
 {
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowSize(SCREEN_WIDTH + 200, SCREEN_HEIGHT + 100);
+	glutInitWindowSize(GAME_WIDTH + 200, GAME_HEIGHT + 100);
 	window_id = glutCreateWindow("Venkat CHIP8");
 	menu_init((int) window_id);
 	glutDisplayFunc(draw_screen);
