@@ -1,8 +1,5 @@
 # CHIP8
-Full instruction-level emulator for the CHIP-8 Instruction Set Architecture (ISA)
-
-Code features an emulator that fully supports all instructions featured in the CHIP-8 ISA.
-The code in the main branch uses OPENGL libraries to display the CHIP8 graphics output. The code in the terminal branch uses a Unix terminal for graphics output, and does not use any external graphics libraries.
+Full instruction-level emulator for the CHIP-8 Instruction Set Architecture (ISA). This emulator uses OPENGL for the actual CHIP8 graphics support and for other functional GUI features (load new ROM, etc.).
 
 ## How to Build
 To build, please run make from src/.
@@ -13,6 +10,14 @@ The emulator automatically scans its directory and all sub-directories (and sub-
 ## Screenshots
 ![Breakout](https://github.com/VenkatKS/CHIP8/raw/master/screenshots/breakout.png "Breakout Game")
 ![Breakout](https://github.com/VenkatKS/CHIP8/raw/master/screenshots/invaders.png "Invaders Game")
+
+
+## Capabilites
+CHIP8 allows the user to:
+* Run all CHIP8 ROMs (full support for the entire ISA)
+* Quickly launch a new ROM (in the same directory tree) by navigating a menu
+* Re-bind keys through a guided graphical interface
+* Pause/Play emulation
 
 
 Developed, compiled, and tested on MacOS.
